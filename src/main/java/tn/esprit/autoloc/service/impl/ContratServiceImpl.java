@@ -22,6 +22,9 @@ public class ContratServiceImpl implements IContratService {
                     "Un nouveau contrat ne doit pas avoir d'identifiant");
         }
         verifierMontant(contrat);
+        if (contrat.getPaiements() != null) {
+            contrat.getPaiements().forEach(paiement -> paiement.setContrat(contrat));
+        }
         return contratRepository.save(contrat);
     }
 

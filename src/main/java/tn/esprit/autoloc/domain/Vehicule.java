@@ -1,13 +1,24 @@
 package tn.esprit.autoloc.domain;
 
-import jakarta.persistence.*;
-import tn.esprit.autoloc.domain.enums.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.CascadeType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import tn.esprit.autoloc.domain.enums.CategorieVehicule;
+import tn.esprit.autoloc.domain.enums.StatutVehicule;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.List;
 
 @Entity
 @Table(name = "vehicule")
@@ -33,9 +44,11 @@ public class Vehicule {
     private Agence agence;
 
     @OneToMany(mappedBy = "vehicule" , cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Reservation> reservations;
 
     @OneToMany(mappedBy = "vehicule", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Maintenance> maintenances;
 
     @ManyToMany(cascade = CascadeType.ALL)

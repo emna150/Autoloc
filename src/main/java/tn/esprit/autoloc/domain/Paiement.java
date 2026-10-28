@@ -1,7 +1,16 @@
 package tn.esprit.autoloc.domain;
 
-import jakarta.persistence.*;
-import tn.esprit.autoloc.domain.enums.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import tn.esprit.autoloc.domain.enums.ModePaiement;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,6 +41,7 @@ public class Paiement {
     private ModePaiement modePaiement;
     @ManyToOne
     @JoinColumn(name = "contrat_id")
+    @JsonBackReference("contrat-paiements")
     private Contrat contrat;
 
 }
