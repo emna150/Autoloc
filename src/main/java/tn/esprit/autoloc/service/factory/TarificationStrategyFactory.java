@@ -44,8 +44,8 @@ public class TarificationStrategyFactory {
     private boolean estWeekend(Reservation reservation) {
         DayOfWeek jourDebut = reservation.getDateDebut().getDayOfWeek();
 
-        return jourDebut == DayOfWeek.FRIDAY
-                || jourDebut == DayOfWeek.SATURDAY
-                || jourDebut == DayOfWeek.SUNDAY;
+        return DayOfWeek.FRIDAY.equals(jourDebut)
+                || DayOfWeek.SATURDAY.equals(jourDebut)
+                || DayOfWeek.SUNDAY.equals(jourDebut);
     }
 }

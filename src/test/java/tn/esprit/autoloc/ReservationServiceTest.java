@@ -14,19 +14,26 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import tn.esprit.autoloc.domain.Client;
 import tn.esprit.autoloc.domain.Reservation;
 import tn.esprit.autoloc.domain.enums.StatutReservation;
+import tn.esprit.autoloc.repository.IClientRepository;
 import tn.esprit.autoloc.repository.IReservationRepository;
+import tn.esprit.autoloc.repository.IVehiculeRepository;
 import tn.esprit.autoloc.service.IReservationService;
 import tn.esprit.autoloc.service.impl.ReservationServiceImpl;
 import tn.esprit.autoloc.service.observer.EmailNotificationObserver;
 import tn.esprit.autoloc.service.observer.ReservationSubject;
 import tn.esprit.autoloc.service.observer.SmsNotificationObserver;
+import tn.esprit.autoloc.web.dto.ReservationRequestDTO;
+import tn.esprit.autoloc.web.dto.ReservationResponseDTO;
+import tn.esprit.autoloc.web.mapper.ReservationMapperImpl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringJUnitConfig(classes = {
         ReservationServiceImpl.class,
+        ReservationMapperImpl.class,
         ReservationSubject.class,
         EmailNotificationObserver.class,
         SmsNotificationObserver.class
@@ -40,15 +47,28 @@ class ReservationServiceTest {
     @MockitoBean
     private IReservationRepository reservationRepository;
 
+    @MockitoBean
+    private IClientRepository clientRepository;
+
+    @MockitoBean
+    private IVehiculeRepository vehiculeRepository;
+
     @Test
     void doitNotifierLaConfirmationParEmailEtSms(CapturedOutput output) {
         Reservation reservation = preparerReservationConfirmee();
-        when(reservationRepository.save(reservation)).thenAnswer(invocation -> {
-            reservation.setId(1L);
-            return reservation;
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(reservation.getClient()));
+        when(reservationRepository.save(any(Reservation.class))).thenAnswer(invocation -> {
+            Reservation creee = invocation.getArgument(0);
+            creee.setId(1L);
+            return creee;
         });
 
-        Reservation creee = reservationService.create(reservation);
+        ReservationResponseDTO creee = reservationService.create(ReservationRequestDTO.builder()
+                .clientId(1L)
+                .dateDebut(reservation.getDateDebut())
+                .dateFin(reservation.getDateFin())
+                .statut(reservation.getStatut())
+                .build());
 
         assertEquals(StatutReservation.CONFIRMEE, creee.getStatut());
         assertTrue(output.getAll().contains("[EMAIL] Confirmation"));
@@ -62,7 +82,7 @@ class ReservationServiceTest {
         when(reservationRepository.findById(2L)).thenReturn(Optional.of(reservation));
         when(reservationRepository.save(reservation)).thenReturn(reservation);
 
-        Reservation annulee = reservationService.annulerReservation(2L);
+        ReservationResponseDTO annulee = reservationService.annulerReservation(2L);
 
         assertEquals(StatutReservation.ANNULEE, annulee.getStatut());
         assertTrue(output.getAll().contains("[EMAIL] Annulation"));

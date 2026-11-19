@@ -2,23 +2,29 @@ package tn.esprit.autoloc;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import tn.esprit.autoloc.domain.*;
 import tn.esprit.autoloc.domain.enums.*;
 import tn.esprit.autoloc.exception.ResourceNotFoundException;
 import tn.esprit.autoloc.service.*;
+import tn.esprit.autoloc.web.dto.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
 class ServiceTests {
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
     private IAgenceService agenceService;
@@ -51,13 +57,13 @@ class ServiceTests {
     void testAgenceService() {
         int nombreInitial = agenceService.findAll().size();
 
-        Agence agence = new Agence();
+        AgenceDTO agence = new AgenceDTO();
         agence.setNom("Agence Test");
         agence.setVille("Tunis");
         agence.setAdresse("10 avenue de la République");
         agence.setTelephone("71000000");
 
-        Agence creee = agenceService.create(agence);
+        AgenceDTO creee = agenceService.create(agence);
         Long id = creee.getId();
 
         assertNotNull(id);
@@ -72,10 +78,10 @@ class ServiceTests {
         assertEquals(nombreInitial + 1, agences.size());
         System.out.println("Nombre d'agences : " + agences.size());
 
-        Agence trouvee = agenceService.findById(id);
+        AgenceDTO trouvee = agenceService.findById(id);
         assertEquals("Agence Test", trouvee.getNom());
 
-        Agence modification = new Agence();
+        AgenceDTO modification = new AgenceDTO();
         modification.setNom("Agence Modifiée");
         modification.setVille("Sousse");
         modification.setAdresse("20 avenue Habib Bourguiba");
@@ -83,7 +89,7 @@ class ServiceTests {
 
         agenceService.update(id, modification);
 
-        Agence modifiee = agenceService.findById(id);
+        AgenceDTO modifiee = agenceService.findById(id);
         assertEquals("Agence Modifiée", modifiee.getNom());
         assertEquals("Sousse", modifiee.getVille());
 
@@ -103,7 +109,7 @@ class ServiceTests {
     void testClientService() {
         int nombreInitial = clientService.findAll().size();
 
-        Client premier = new Client();
+        ClientDTO premier = new ClientDTO();
         premier.setNom("Client Test Un");
         premier.setPrenom("Emna");
         premier.setEmail("client1@example.com");
@@ -111,7 +117,7 @@ class ServiceTests {
         premier.setNumPermis("TEST-P001");
         premier.setDateInscription(LocalDate.now());
 
-        Client second = new Client();
+        ClientDTO second = new ClientDTO();
         second.setNom("Client Test Deux");
         second.setPrenom("Amine");
         second.setEmail("client2@example.com");
@@ -137,10 +143,10 @@ class ServiceTests {
         assertEquals(nombreInitial + 2, clients.size());
         System.out.println("Nombre de clients : " + clients.size());
 
-        Client trouve = clientService.findById(id1);
+        ClientDTO trouve = clientService.findById(id1);
         assertEquals("client1@example.com", trouve.getEmail());
 
-        Client modification = new Client();
+        ClientDTO modification = new ClientDTO();
         modification.setNom("Client Modifié");
         modification.setPrenom("Emna");
         modification.setEmail("client.modifie@example.com");
@@ -150,7 +156,7 @@ class ServiceTests {
 
         clientService.update(id1, modification);
 
-        Client modifie = clientService.findById(id1);
+        ClientDTO modifie = clientService.findById(id1);
         assertEquals("Client Modifié", modifie.getNom());
         assertEquals("client.modifie@example.com", modifie.getEmail());
 
@@ -171,7 +177,7 @@ class ServiceTests {
     void testVehiculeService() {
         int nombreInitial = vehiculeService.findAll().size();
 
-        Vehicule vehicule = new Vehicule();
+        VehiculeDTO vehicule = new VehiculeDTO();
         vehicule.setImmatriculation("TEST-AT4-001");
         vehicule.setMarque("Toyota");
         vehicule.setModele("Yaris");
@@ -179,7 +185,7 @@ class ServiceTests {
         vehicule.setStatut(StatutVehicule.values()[0]);
         vehicule.setTarifJournalier(new BigDecimal("100.00"));
 
-        Long id = vehiculeService.create(vehicule).getIdVehicule();
+        Long id = vehiculeService.create(vehicule).getId();
 
         assertNotNull(id);
         System.out.println("Véhicule créé : " + id);
@@ -188,16 +194,16 @@ class ServiceTests {
 
         vehicules.forEach(v ->
                 System.out.println(
-                        "Véhicule : " + v.getIdVehicule()
+                        "Véhicule : " + v.getId()
                                 + " - " + v.getImmatriculation()));
 
         assertEquals(nombreInitial + 1, vehicules.size());
         System.out.println("Nombre de véhicules : " + vehicules.size());
 
-        Vehicule trouve = vehiculeService.findById(id);
+        VehiculeDTO trouve = vehiculeService.findById(id);
         assertEquals("TEST-AT4-001", trouve.getImmatriculation());
 
-        Vehicule modification = new Vehicule();
+        VehiculeDTO modification = new VehiculeDTO();
         modification.setImmatriculation("TEST-AT4-001");
         modification.setMarque("Toyota");
         modification.setModele("Yaris Hybride");
@@ -207,7 +213,7 @@ class ServiceTests {
 
         vehiculeService.update(id, modification);
 
-        Vehicule modifie = vehiculeService.findById(id);
+        VehiculeDTO modifie = vehiculeService.findById(id);
         assertEquals("Yaris Hybride", modifie.getModele());
         assertEquals(0, new BigDecimal("120.00")
                 .compareTo(modifie.getTarifJournalier()));
@@ -228,7 +234,7 @@ class ServiceTests {
     void testEmployeService() {
         int nombreInitial = employeService.findAll().size();
 
-        Employe employe = new Employe();
+        EmployeDTO employe = new EmployeDTO();
         employe.setNom("Employé Test");
         employe.setPrenom("Ali");
         employe.setRole(RoleEmploye.values()[0]);
@@ -244,20 +250,20 @@ class ServiceTests {
         assertTrue(employes.stream()
                 .anyMatch(e -> id.equals(e.getId())));
 
-        Employe trouve = employeService.findById(id);
+        EmployeDTO trouve = employeService.findById(id);
         assertEquals("Employé Test", trouve.getNom());
 
         System.out.println("Employé retrouvé : " + trouve.getNom());
         System.out.println("Nombre d'employés : " + employes.size());
 
-        Employe modification = new Employe();
+        EmployeDTO modification = new EmployeDTO();
         modification.setNom("Employé Modifié");
         modification.setPrenom("Sami");
         modification.setRole(employe.getRole());
 
         employeService.update(id, modification);
 
-        Employe modifie = employeService.findById(id);
+        EmployeDTO modifie = employeService.findById(id);
         assertEquals("Employé Modifié", modifie.getNom());
         assertEquals("Sami", modifie.getPrenom());
 
@@ -277,7 +283,7 @@ class ServiceTests {
     void testEquipementService() {
         int nombreInitial = equipementService.findAll().size();
 
-        Equipement equipement = new Equipement();
+        EquipementDTO equipement = new EquipementDTO();
         equipement.setLibelle("GPS Test");
 
         Long id = equipementService.create(equipement).getId();
@@ -291,18 +297,18 @@ class ServiceTests {
         assertTrue(equipements.stream()
                 .anyMatch(e -> id.equals(e.getId())));
 
-        Equipement trouve = equipementService.findById(id);
+        EquipementDTO trouve = equipementService.findById(id);
         assertEquals("GPS Test", trouve.getLibelle());
 
         System.out.println("Équipement retrouvé : " + trouve.getLibelle());
         System.out.println("Nombre d'équipements : " + equipements.size());
 
-        Equipement modification = new Equipement();
+        EquipementDTO modification = new EquipementDTO();
         modification.setLibelle("GPS Modifié");
 
         equipementService.update(id, modification);
 
-        Equipement modifie = equipementService.findById(id);
+        EquipementDTO modifie = equipementService.findById(id);
         assertEquals("GPS Modifié", modifie.getLibelle());
 
         System.out.println("Équipement modifié : " + modifie.getLibelle());
@@ -322,7 +328,18 @@ class ServiceTests {
         int nombreInitial = reservationService.findAll().size();
         LocalDate debut = LocalDate.now().plusDays(10);
 
-        Reservation reservation = new Reservation();
+        Long clientId = clientService.create(ClientDTO.builder()
+                .nom("Test")
+                .prenom("Client")
+                .email("reservation@example.com")
+                .build()).getId();
+        Long vehiculeId = vehiculeService.create(VehiculeDTO.builder()
+                .immatriculation("TEST-RES-01")
+                .build()).getId();
+
+        ReservationRequestDTO reservation = new ReservationRequestDTO();
+        reservation.setClientId(clientId);
+        reservation.setVehiculeId(vehiculeId);
         reservation.setDateDebut(debut);
         reservation.setDateFin(debut.plusDays(3));
         reservation.setStatut(StatutReservation.values()[0]);
@@ -338,20 +355,24 @@ class ServiceTests {
         assertTrue(reservations.stream()
                 .anyMatch(r -> id.equals(r.getId())));
 
-        Reservation trouvee = reservationService.findById(id);
+        ReservationResponseDTO trouvee = reservationService.findById(id);
         assertEquals(debut, trouvee.getDateDebut());
+        assertEquals(clientId, trouvee.getClientId());
+        assertEquals("Client Test", trouvee.getClientNomComplet());
+        assertEquals(vehiculeId, trouvee.getVehiculeId());
+        assertEquals("TEST-RES-01", trouvee.getVehiculeImmatriculation());
 
         System.out.println("Réservation retrouvée : " + trouvee.getId());
         System.out.println("Nombre de réservations : " + reservations.size());
 
-        Reservation modification = new Reservation();
+        ReservationRequestDTO modification = new ReservationRequestDTO();
         modification.setDateDebut(debut);
         modification.setDateFin(debut.plusDays(5));
         modification.setStatut(reservation.getStatut());
 
         reservationService.update(id, modification);
 
-        Reservation modifiee = reservationService.findById(id);
+        ReservationResponseDTO modifiee = reservationService.findById(id);
         assertEquals(debut.plusDays(5), modifiee.getDateFin());
 
         System.out.println(
@@ -372,11 +393,12 @@ class ServiceTests {
     void testContratService() {
         int nombreInitial = contratService.findAll().size();
 
-        Contrat contrat = new Contrat();
+        Long reservationId = reservationService.create(new ReservationRequestDTO()).getId();
+        ContratDTO contrat = new ContratDTO();
+        contrat.setReservationId(reservationId);
         contrat.setDateSignature(LocalDate.now());
         contrat.setMontantTotal(new BigDecimal("300.00"));
         contrat.setValide(false);
-        contrat.setPaiements(new ArrayList<>());
 
         Long id = contratService.create(contrat).getId();
 
@@ -389,25 +411,28 @@ class ServiceTests {
         assertTrue(contrats.stream()
                 .anyMatch(c -> id.equals(c.getId())));
 
-        Contrat trouve = contratService.findById(id);
+        entityManager.flush();
+        entityManager.clear();
+        ContratDTO trouve = contratService.findById(id);
+        assertEquals(reservationId, trouve.getReservationId());
         assertEquals(0, new BigDecimal("300.00")
                 .compareTo(trouve.getMontantTotal()));
-        assertFalse(trouve.isValide());
+        assertFalse(trouve.getValide());
 
         System.out.println("Contrat retrouvé : " + trouve.getId());
         System.out.println("Nombre de contrats : " + contrats.size());
 
-        Contrat modification = new Contrat();
+        ContratDTO modification = new ContratDTO();
         modification.setDateSignature(LocalDate.now());
         modification.setMontantTotal(new BigDecimal("350.00"));
         modification.setValide(true);
 
         contratService.update(id, modification);
 
-        Contrat modifie = contratService.findById(id);
+        ContratDTO modifie = contratService.findById(id);
         assertEquals(0, new BigDecimal("350.00")
                 .compareTo(modifie.getMontantTotal()));
-        assertTrue(modifie.isValide());
+        assertTrue(modifie.getValide());
 
         System.out.println(
                 "Contrat modifié, montant : " + modifie.getMontantTotal());
@@ -418,6 +443,7 @@ class ServiceTests {
                 () -> contratService.findById(id));
 
         assertEquals(nombreInitial, contratService.findAll().size());
+        assertEquals(reservationId, reservationService.findById(reservationId).getId());
 
         System.out.println("Suppression contrat vérifiée");
     }
@@ -427,24 +453,21 @@ class ServiceTests {
         int nombreInitial = paiementService.findAll().size();
 
         // Les écritures passent par le Contrat.
-        Contrat contrat = new Contrat();
+        ContratDTO contrat = new ContratDTO();
         contrat.setDateSignature(LocalDate.now());
         contrat.setMontantTotal(new BigDecimal("200.00"));
         contrat.setValide(true);
-        contrat.setPaiements(new ArrayList<>());
 
-        Paiement paiement = new Paiement();
+        PaiementDTO paiement = new PaiementDTO();
         paiement.setMontant(new BigDecimal("200.00"));
         paiement.setDatePaiement(LocalDate.now());
         paiement.setModePaiement(ModePaiement.values()[0]);
 
-        // Renseigner les deux côtés de l'association.
-        paiement.setContrat(contrat);
-        contrat.getPaiements().add(paiement);
+        contrat.setPaiements(List.of(paiement));
 
-        Contrat cree = contratService.create(contrat);
+        ContratDTO cree = contratService.create(contrat);
         Long contratId = cree.getId();
-        Long paiementId = paiement.getId();
+        Long paiementId = cree.getPaiements().get(0).getId();
 
         assertNotNull(contratId);
         assertNotNull(paiementId);
@@ -458,11 +481,11 @@ class ServiceTests {
         assertTrue(paiements.stream()
                 .anyMatch(p -> paiementId.equals(p.getId())));
 
-        Paiement trouve = paiementService.findById(paiementId);
+        PaiementDTO trouve = paiementService.findById(paiementId);
 
         assertEquals(0, new BigDecimal("200.00")
                 .compareTo(trouve.getMontant()));
-        assertEquals(contratId, trouve.getContrat().getId());
+        assertEquals(contratId, trouve.getContratId());
 
         System.out.println(
                 "Paiement retrouvé, montant : " + trouve.getMontant());
@@ -488,7 +511,7 @@ class ServiceTests {
         int nombreInitial = maintenanceService.findAll().size();
         LocalDate debut = LocalDate.now().plusDays(1);
 
-        Maintenance maintenance = new Maintenance();
+        MaintenanceDTO maintenance = new MaintenanceDTO();
         maintenance.setDateDebut(debut);
         maintenance.setDateFin(debut.plusDays(2));
         maintenance.setDescription("Vidange Test");
@@ -504,21 +527,21 @@ class ServiceTests {
         assertTrue(maintenances.stream()
                 .anyMatch(m -> id.equals(m.getId())));
 
-        Maintenance trouvee = maintenanceService.findById(id);
+        MaintenanceDTO trouvee = maintenanceService.findById(id);
         assertEquals("Vidange Test", trouvee.getDescription());
 
         System.out.println(
                 "Maintenance retrouvée : " + trouvee.getDescription());
         System.out.println("Nombre de maintenances : " + maintenances.size());
 
-        Maintenance modification = new Maintenance();
+        MaintenanceDTO modification = new MaintenanceDTO();
         modification.setDateDebut(debut);
         modification.setDateFin(debut.plusDays(3));
         modification.setDescription("Vidange et changement des filtres");
 
         maintenanceService.update(id, modification);
 
-        Maintenance modifiee = maintenanceService.findById(id);
+        MaintenanceDTO modifiee = maintenanceService.findById(id);
         assertEquals(
                 "Vidange et changement des filtres",
                 modifiee.getDescription());
@@ -535,5 +558,74 @@ class ServiceTests {
         assertEquals(nombreInitial, maintenanceService.findAll().size());
 
         System.out.println("Suppression maintenance vérifiée");
+    }
+
+    @Test
+    void testAffectationVehicule() {
+        Long premiereAgence = creerAgence("Affectation véhicule 1");
+        Long secondeAgence = creerAgence("Affectation véhicule 2");
+        Long id = vehiculeService.create(VehiculeDTO.builder()
+                .immatriculation("TEST-AFF-01")
+                .build()).getId();
+
+        vehiculeService.affecterVehiculeAAgence(id, premiereAgence);
+        assertEquals(premiereAgence, agenceEnBase("vehicule", "id_vehicule", id));
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> vehiculeService.affecterVehiculeAAgence(Long.MAX_VALUE, premiereAgence));
+        assertThrows(ResourceNotFoundException.class,
+                () -> vehiculeService.affecterVehiculeAAgence(id, Long.MAX_VALUE));
+        assertEquals(premiereAgence, agenceEnBase("vehicule", "id_vehicule", id));
+
+        vehiculeService.affecterVehiculeAAgence(id, secondeAgence);
+        assertEquals(secondeAgence, agenceEnBase("vehicule", "id_vehicule", id));
+
+        vehiculeService.desaffecterVehiculeDeAgence(id);
+        vehiculeService.desaffecterVehiculeDeAgence(id);
+        assertNull(agenceEnBase("vehicule", "id_vehicule", id));
+        assertThrows(ResourceNotFoundException.class,
+                () -> vehiculeService.desaffecterVehiculeDeAgence(Long.MAX_VALUE));
+    }
+
+    @Test
+    void testAffectationEmploye() {
+        Long premiereAgence = creerAgence("Affectation employé 1");
+        Long secondeAgence = creerAgence("Affectation employé 2");
+        Long id = employeService.create(EmployeDTO.builder()
+                .nom("Affectation test")
+                .role(RoleEmploye.values()[0])
+                .build()).getId();
+
+        employeService.affecterEmployeAAgence(id, premiereAgence);
+        assertEquals(premiereAgence, agenceEnBase("employe", "id", id));
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> employeService.affecterEmployeAAgence(Long.MAX_VALUE, premiereAgence));
+        assertThrows(ResourceNotFoundException.class,
+                () -> employeService.affecterEmployeAAgence(id, Long.MAX_VALUE));
+        assertEquals(premiereAgence, agenceEnBase("employe", "id", id));
+
+        employeService.affecterEmployeAAgence(id, secondeAgence);
+        assertEquals(secondeAgence, agenceEnBase("employe", "id", id));
+
+        employeService.desaffecterEmployeDeAgence(id);
+        employeService.desaffecterEmployeDeAgence(id);
+        assertNull(agenceEnBase("employe", "id", id));
+        assertThrows(ResourceNotFoundException.class,
+                () -> employeService.desaffecterEmployeDeAgence(Long.MAX_VALUE));
+    }
+
+    private Long creerAgence(String nom) {
+        return agenceService.create(AgenceDTO.builder().nom(nom).build()).getId();
+    }
+
+    private Long agenceEnBase(String table, String colonneId, Long id) {
+        entityManager.flush();
+        entityManager.clear();
+        Number agenceId = (Number) entityManager
+                .createNativeQuery("SELECT agence_id FROM " + table + " WHERE " + colonneId + " = :id")
+                .setParameter("id", id)
+                .getSingleResult();
+        return agenceId == null ? null : agenceId.longValue();
     }
 }

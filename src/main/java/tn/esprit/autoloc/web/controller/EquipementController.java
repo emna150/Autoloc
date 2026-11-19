@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import tn.esprit.autoloc.domain.Equipement;
+import tn.esprit.autoloc.web.dto.EquipementDTO;
 import tn.esprit.autoloc.service.IEquipementService;
 
 @RestController
@@ -30,15 +30,15 @@ public class EquipementController {
     @Operation(summary = "Lister : equipements")
     @ApiResponse(responseCode = "200", description = "Liste renvoyée")
     @GetMapping
-    public List<Equipement> findAll() {
+    public List<EquipementDTO> findAll() {
         return service.findAll();
     }
 
     @Operation(summary = "Consulter : Equipement")
     @ApiResponse(responseCode = "200", description = "Ressource trouvée")
-        @ApiResponse(responseCode = "404", description = "Ressource introuvable")
+    @ApiResponse(responseCode = "404", description = "Ressource introuvable")
     @GetMapping("/{id}")
-    public Equipement findById(
+    public EquipementDTO findById(
             @Parameter(description = "Identifiant de la ressource")
             @PathVariable("id") Long id) {
         return service.findById(id);
@@ -46,27 +46,27 @@ public class EquipementController {
 
     @Operation(summary = "Créer : Equipement")
     @ApiResponse(responseCode = "201", description = "Ressource créée")
-        @ApiResponse(responseCode = "400", description = "Données invalides")
+    @ApiResponse(responseCode = "400", description = "Données invalides")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Equipement create(@RequestBody Equipement equipement) {
-        return service.create(equipement);
+    public EquipementDTO create(@RequestBody EquipementDTO dto) {
+        return service.create(dto);
     }
 
     @Operation(summary = "Modifier : Equipement")
     @ApiResponse(responseCode = "200", description = "Ressource modifiée")
-        @ApiResponse(responseCode = "400", description = "Données invalides")
-        @ApiResponse(responseCode = "404", description = "Ressource introuvable")
+    @ApiResponse(responseCode = "400", description = "Données invalides")
+    @ApiResponse(responseCode = "404", description = "Ressource introuvable")
     @PutMapping("/{id}")
-    public Equipement update(
+    public EquipementDTO update(
             @Parameter(description = "Identifiant de la ressource")
-            @PathVariable("id") Long id, @RequestBody Equipement equipement) {
-        return service.update(id, equipement);
+            @PathVariable("id") Long id, @RequestBody EquipementDTO dto) {
+        return service.update(id, dto);
     }
 
     @Operation(summary = "Supprimer : Equipement")
     @ApiResponse(responseCode = "204", description = "Ressource supprimée, corps vide")
-        @ApiResponse(responseCode = "404", description = "Ressource introuvable")
+    @ApiResponse(responseCode = "404", description = "Ressource introuvable")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteById(

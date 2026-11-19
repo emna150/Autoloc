@@ -1,31 +1,40 @@
 package tn.esprit.autoloc.service.impl;
 
 import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.autoloc.domain.Reservation;
 import tn.esprit.autoloc.domain.enums.StatutReservation;
 import tn.esprit.autoloc.exception.ResourceNotFoundException;
+import tn.esprit.autoloc.repository.IClientRepository;
 import tn.esprit.autoloc.repository.IReservationRepository;
+import tn.esprit.autoloc.repository.IVehiculeRepository;
 import tn.esprit.autoloc.service.IReservationService;
 import tn.esprit.autoloc.service.observer.ReservationSubject;
+import tn.esprit.autoloc.web.dto.ReservationRequestDTO;
+import tn.esprit.autoloc.web.dto.ReservationResponseDTO;
+import tn.esprit.autoloc.web.mapper.ReservationMapper;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ReservationServiceImpl implements IReservationService {
 
     private final IReservationRepository reservationRepository;
     private final ReservationSubject reservationSubject;
+    private final ReservationMapper reservationMapper;
+    private final IClientRepository clientRepository;
+    private final IVehiculeRepository vehiculeRepository;
 
     @Override
-    public Reservation create(Reservation reservation) {
-        if (reservation.getId() != null) {
-            throw new IllegalArgumentException(
-                    "Une nouvelle réservation ne doit pas avoir d'identifiant");
-        }
-
+    public ReservationResponseDTO create(ReservationRequestDTO dto) {
+        Reservation reservation = reservationMapper.toEntity(dto);
         verifierDates(reservation);
+        remplirAssociations(reservation, dto);
+        if (reservation.getStatut() == null) {
+            reservation.setStatut(StatutReservation.EN_ATTENTE);
+        }
         Reservation sauvegardee = reservationRepository.save(reservation);
 
         if (sauvegardee.getStatut() == StatutReservation.CONFIRMEE
@@ -33,49 +42,56 @@ public class ReservationServiceImpl implements IReservationService {
             reservationSubject.notifierConfirmation(sauvegardee);
         }
 
-        return sauvegardee;
+        return reservationMapper.toDto(sauvegardee);
     }
 
     @Override
-    public Reservation findById(Long id) {
+    @Transactional(readOnly = true)
+    public ReservationResponseDTO findById(Long id) {
+        return reservationMapper.toDto(charger(id));
+    }
+
+    private Reservation charger(Long id) {
         return reservationRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Reservation", id));
     }
 
     @Override
-    public List<Reservation> findAll() {
-        return reservationRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<ReservationResponseDTO> findAll() {
+        return reservationRepository.findAll().stream().map(reservationMapper::toDto).toList();
     }
 
     @Override
-    public Reservation update(Long id, Reservation reservation) {
-        Reservation existante = findById(id);
+    public ReservationResponseDTO update(Long id, ReservationRequestDTO dto) {
+        Reservation existante = charger(id);
+        Reservation reservation = reservationMapper.toEntity(dto);
         verifierDates(reservation);
 
         StatutReservation ancienStatut = existante.getStatut();
 
         existante.setDateDebut(reservation.getDateDebut());
         existante.setDateFin(reservation.getDateFin());
-        existante.setStatut(reservation.getStatut());
-        existante.setClient(reservation.getClient());
-        existante.setVehicule(reservation.getVehicule());
-        existante.setContrat(reservation.getContrat());
+        if (dto.getStatut() != null) {
+            existante.setStatut(dto.getStatut());
+        }
+        remplirAssociations(existante, dto);
 
-        return sauvegarderEtNotifierAnnulation(existante, ancienStatut);
+        return reservationMapper.toDto(sauvegarderEtNotifierAnnulation(existante, ancienStatut));
     }
 
     @Override
-    public Reservation annulerReservation(Long id) {
-        Reservation reservation = findById(id);
+    public ReservationResponseDTO annulerReservation(Long id) {
+        Reservation reservation = charger(id);
         StatutReservation ancienStatut = reservation.getStatut();
 
         if (ancienStatut == StatutReservation.ANNULEE) {
-            return reservation;
+            return reservationMapper.toDto(reservation);
         }
 
         reservation.setStatut(StatutReservation.ANNULEE);
-        return sauvegarderEtNotifierAnnulation(reservation, ancienStatut);
+        return reservationMapper.toDto(sauvegarderEtNotifierAnnulation(reservation, ancienStatut));
     }
 
     @Override
@@ -97,6 +113,17 @@ public class ReservationServiceImpl implements IReservationService {
         }
 
         return sauvegardee;
+    }
+
+    private void remplirAssociations(Reservation reservation, ReservationRequestDTO dto) {
+        if (dto.getClientId() != null) {
+            reservation.setClient(clientRepository.findById(dto.getClientId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Client", dto.getClientId())));
+        }
+        if (dto.getVehiculeId() != null) {
+            reservation.setVehicule(vehiculeRepository.findById(dto.getVehiculeId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Vehicule", dto.getVehiculeId())));
+        }
     }
 
     private void verifierDates(Reservation reservation) {

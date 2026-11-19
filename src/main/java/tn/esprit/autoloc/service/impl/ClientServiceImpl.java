@@ -3,42 +3,55 @@ package tn.esprit.autoloc.service.impl;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.autoloc.domain.Client;
 import tn.esprit.autoloc.exception.ResourceNotFoundException;
 import tn.esprit.autoloc.repository.IClientRepository;
 import tn.esprit.autoloc.service.IClientService;
+import tn.esprit.autoloc.web.dto.ClientDTO;
+import tn.esprit.autoloc.web.mapper.ClientMapper;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ClientServiceImpl implements IClientService {
 
     private final IClientRepository clientRepository;
+    private final ClientMapper clientMapper;
 
     @Override
-    public Client create(Client client) {
+    public ClientDTO create(ClientDTO dto) {
+        Client client = clientMapper.toEntity(dto);
         if (client.getId() != null) {
             throw new IllegalArgumentException(
                     "Un nouveau client ne doit pas avoir d'identifiant");
         }
         verifierClient(client);
-        return clientRepository.save(client);
+        return clientMapper.toDto(clientRepository.save(client));
     }
 
     @Override
-    public Client findById(Long id) {
+    @Transactional(readOnly = true)
+    public ClientDTO findById(Long id) {
+        return clientMapper.toDto(charger(id));
+    }
+
+    private Client charger(Long id) {
         return clientRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Client", id));
     }
 
     @Override
-    public List<Client> findAll() {
-        return clientRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<ClientDTO> findAll() {
+        return clientRepository.findAll().stream().map(clientMapper::toDto).toList();
     }
 
     @Override
-    public Client update(Long id, Client client) {
-        Client existant = findById(id);
+    public ClientDTO update(Long id, ClientDTO dto) {
+        Client existant = charger(id);
+        Client client = clientMapper.toEntity(dto);
         verifierClient(client);
 
         existant.setNom(client.getNom());
@@ -48,7 +61,7 @@ public class ClientServiceImpl implements IClientService {
         existant.setNumPermis(client.getNumPermis());
         existant.setDateInscription(client.getDateInscription());
 
-        return clientRepository.save(existant);
+        return clientMapper.toDto(clientRepository.save(existant));
     }
 
     @Override

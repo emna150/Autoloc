@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import tn.esprit.autoloc.domain.Maintenance;
+import tn.esprit.autoloc.web.dto.MaintenanceDTO;
 import tn.esprit.autoloc.service.IMaintenanceService;
 
 @RestController
@@ -30,15 +30,15 @@ public class MaintenanceController {
     @Operation(summary = "Lister : maintenances")
     @ApiResponse(responseCode = "200", description = "Liste renvoyée")
     @GetMapping
-    public List<Maintenance> findAll() {
+    public List<MaintenanceDTO> findAll() {
         return service.findAll();
     }
 
     @Operation(summary = "Consulter : Maintenance")
     @ApiResponse(responseCode = "200", description = "Ressource trouvée")
-        @ApiResponse(responseCode = "404", description = "Ressource introuvable")
+    @ApiResponse(responseCode = "404", description = "Ressource introuvable")
     @GetMapping("/{id}")
-    public Maintenance findById(
+    public MaintenanceDTO findById(
             @Parameter(description = "Identifiant de la ressource")
             @PathVariable("id") Long id) {
         return service.findById(id);
@@ -46,27 +46,28 @@ public class MaintenanceController {
 
     @Operation(summary = "Créer : Maintenance")
     @ApiResponse(responseCode = "201", description = "Ressource créée")
-        @ApiResponse(responseCode = "400", description = "Données invalides")
+    @ApiResponse(responseCode = "400", description = "Données invalides")
+    @ApiResponse(responseCode = "404", description = "Association introuvable")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Maintenance create(@RequestBody Maintenance maintenance) {
-        return service.create(maintenance);
+    public MaintenanceDTO create(@RequestBody MaintenanceDTO dto) {
+        return service.create(dto);
     }
 
     @Operation(summary = "Modifier : Maintenance")
     @ApiResponse(responseCode = "200", description = "Ressource modifiée")
-        @ApiResponse(responseCode = "400", description = "Données invalides")
-        @ApiResponse(responseCode = "404", description = "Ressource introuvable")
+    @ApiResponse(responseCode = "400", description = "Données invalides")
+    @ApiResponse(responseCode = "404", description = "Ressource introuvable")
     @PutMapping("/{id}")
-    public Maintenance update(
+    public MaintenanceDTO update(
             @Parameter(description = "Identifiant de la ressource")
-            @PathVariable("id") Long id, @RequestBody Maintenance maintenance) {
-        return service.update(id, maintenance);
+            @PathVariable("id") Long id, @RequestBody MaintenanceDTO dto) {
+        return service.update(id, dto);
     }
 
     @Operation(summary = "Supprimer : Maintenance")
     @ApiResponse(responseCode = "204", description = "Ressource supprimée, corps vide")
-        @ApiResponse(responseCode = "404", description = "Ressource introuvable")
+    @ApiResponse(responseCode = "404", description = "Ressource introuvable")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteById(

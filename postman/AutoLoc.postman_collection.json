@@ -2,7 +2,7 @@
   "info": {
     "name": "AutoLoc - Atelier 5",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "Sélectionner environnement local, exécuter tous les dossiers dans l’ordre, une seule itération. Crée et supprime uniquement ses données de test. Ne pas lancer les dossiers de nettoyage séparément après un échec. Les références utilisent idVehicule pour Vehicule. Résultats à relever après exécution réelle."
+    "description": "Sélectionner environnement local, exécuter tous les dossiers dans l’ordre, une seule itération. Crée et supprime uniquement ses données de test. Ne pas lancer les dossiers de nettoyage séparément après un échec. Atelier 7 : les DTO utilisent id pour le véhicule et les relations sont transmises par identifiant. Résultats à relever après exécution réelle."
   },
   "item": [
     {
@@ -109,7 +109,7 @@
             "url": "{{baseUrl}}/api/vehicules",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"immatriculation\": \"TP-{{runTag}}\",\n  \"marque\": \"Renault\",\n  \"modele\": \"Clio\",\n  \"categorie\": \"CITADINE\",\n  \"tarifJournalier\": 90,\n  \"statut\": \"DISPONIBLE\",\n  \"agence\": {\n    \"id\": \"{{refAgenceId}}\"\n  }\n}",
+              "raw": "{\n  \"immatriculation\": \"TP-{{runTag}}\",\n  \"marque\": \"Renault\",\n  \"modele\": \"Clio\",\n  \"categorie\": \"CITADINE\",\n  \"tarifJournalier\": 90,\n  \"statut\": \"DISPONIBLE\",\n  \"agenceId\": \"{{refAgenceId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -135,7 +135,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Statut 201\", () => pm.response.to.have.status(201));",
-                  "if (pm.response.code === 201) { const j=pm.response.json(); pm.test(\"Identifiant généré\", () => pm.expect(j.idVehicule).to.be.a(\"number\")); pm.environment.set(\"refVehiculeId\", String(j.idVehicule)); }"
+                  "if (pm.response.code === 201) { const j=pm.response.json(); pm.test(\"Identifiant généré\", () => pm.expect(j.id).to.be.a(\"number\")); pm.environment.set(\"refVehiculeId\", String(j.id)); }"
                 ]
               }
             }
@@ -1520,7 +1520,7 @@
             "url": "{{baseUrl}}/api/vehicules",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"immatriculation\": \"TP-{{runTag}}\",\n  \"marque\": \"Renault\",\n  \"modele\": \"Clio\",\n  \"categorie\": \"CITADINE\",\n  \"tarifJournalier\": -1,\n  \"statut\": \"DISPONIBLE\",\n  \"agence\": {\n    \"id\": \"{{refAgenceId}}\"\n  }\n}",
+              "raw": "{\n  \"immatriculation\": \"TP-{{runTag}}\",\n  \"marque\": \"Renault\",\n  \"modele\": \"Clio\",\n  \"categorie\": \"CITADINE\",\n  \"tarifJournalier\": -1,\n  \"statut\": \"DISPONIBLE\",\n  \"agenceId\": \"{{refAgenceId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1564,7 +1564,7 @@
             "url": "{{baseUrl}}/api/vehicules",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"immatriculation\": \"TEST-{{runTag}}\",\n  \"marque\": \"Renault\",\n  \"modele\": \"Clio\",\n  \"categorie\": \"CITADINE\",\n  \"tarifJournalier\": 90,\n  \"statut\": \"DISPONIBLE\",\n  \"agence\": {\n    \"id\": \"{{refAgenceId}}\"\n  },\n  \"idVehicule\": 5\n}",
+              "raw": "{\n  \"immatriculation\": \"TEST-{{runTag}}\",\n  \"marque\": \"Renault\",\n  \"modele\": \"Clio\",\n  \"categorie\": \"CITADINE\",\n  \"tarifJournalier\": 90,\n  \"statut\": \"DISPONIBLE\",\n  \"agenceId\": \"{{refAgenceId}}\",\n  \"id\": 5\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1608,7 +1608,7 @@
             "url": "{{baseUrl}}/api/vehicules",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"immatriculation\": \"TEST-{{runTag}}\",\n  \"marque\": \"Renault\",\n  \"modele\": \"Clio\",\n  \"categorie\": \"CITADINE\",\n  \"tarifJournalier\": 90,\n  \"statut\": \"DISPONIBLE\",\n  \"agence\": {\n    \"id\": \"{{refAgenceId}}\"\n  }\n}",
+              "raw": "{\n  \"immatriculation\": \"TEST-{{runTag}}\",\n  \"marque\": \"Renault\",\n  \"modele\": \"Clio\",\n  \"categorie\": \"CITADINE\",\n  \"tarifJournalier\": 90,\n  \"statut\": \"DISPONIBLE\",\n  \"agenceId\": \"{{refAgenceId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1634,7 +1634,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Statut 201\", () => pm.response.to.have.status(201));",
-                  "if (pm.response.code === 201) { const j=pm.response.json(); pm.test(\"Identifiant généré\", () => pm.expect(j.idVehicule).to.be.a(\"number\")); pm.environment.set(\"vehiculeId\", String(j.idVehicule)); }"
+                  "if (pm.response.code === 201) { const j=pm.response.json(); pm.test(\"Identifiant généré\", () => pm.expect(j.id).to.be.a(\"number\")); pm.environment.set(\"vehiculeId\", String(j.id)); }"
                 ]
               }
             }
@@ -1681,7 +1681,7 @@
             "url": "{{baseUrl}}/api/vehicules/{{vehiculeId}}",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"immatriculation\": \"TEST-{{runTag}}\",\n  \"marque\": \"Renault\",\n  \"modele\": \"Clio\",\n  \"categorie\": \"CITADINE\",\n  \"tarifJournalier\": 95,\n  \"statut\": \"DISPONIBLE\",\n  \"agence\": {\n    \"id\": \"{{refAgenceId}}\"\n  }\n}",
+              "raw": "{\n  \"immatriculation\": \"TEST-{{runTag}}\",\n  \"marque\": \"Renault\",\n  \"modele\": \"Clio\",\n  \"categorie\": \"CITADINE\",\n  \"tarifJournalier\": 95,\n  \"statut\": \"DISPONIBLE\",\n  \"agenceId\": \"{{refAgenceId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1755,7 +1755,7 @@
             "url": "{{baseUrl}}/api/vehicules/{{vehiculeId}}",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"immatriculation\": \"TP-{{runTag}}\",\n  \"marque\": \"Renault\",\n  \"modele\": \"Clio\",\n  \"categorie\": \"CITADINE\",\n  \"tarifJournalier\": -1,\n  \"statut\": \"DISPONIBLE\",\n  \"agence\": {\n    \"id\": \"{{refAgenceId}}\"\n  }\n}",
+              "raw": "{\n  \"immatriculation\": \"TP-{{runTag}}\",\n  \"marque\": \"Renault\",\n  \"modele\": \"Clio\",\n  \"categorie\": \"CITADINE\",\n  \"tarifJournalier\": -1,\n  \"statut\": \"DISPONIBLE\",\n  \"agenceId\": \"{{refAgenceId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1800,7 +1800,7 @@
             "url": "{{baseUrl}}/api/vehicules/9223372036854775806",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"immatriculation\": \"TEST-{{runTag}}\",\n  \"marque\": \"Renault\",\n  \"modele\": \"Clio\",\n  \"categorie\": \"CITADINE\",\n  \"tarifJournalier\": 95,\n  \"statut\": \"DISPONIBLE\",\n  \"agence\": {\n    \"id\": \"{{refAgenceId}}\"\n  }\n}",
+              "raw": "{\n  \"immatriculation\": \"TEST-{{runTag}}\",\n  \"marque\": \"Renault\",\n  \"modele\": \"Clio\",\n  \"categorie\": \"CITADINE\",\n  \"tarifJournalier\": 95,\n  \"statut\": \"DISPONIBLE\",\n  \"agenceId\": \"{{refAgenceId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2010,7 +2010,7 @@
             "url": "{{baseUrl}}/api/employes",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nom\": \"Employe Test\",\n  \"prenom\": \"TP\",\n  \"role\": \"AGENT\",\n  \"agence\": {\n    \"id\": \"{{refAgenceId}}\"\n  },\n  \"id\": 5\n}",
+              "raw": "{\n  \"nom\": \"Employe Test\",\n  \"prenom\": \"TP\",\n  \"role\": \"AGENT\",\n  \"id\": 5,\n  \"agenceId\": \"{{refAgenceId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2053,7 +2053,7 @@
             "url": "{{baseUrl}}/api/employes",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nom\": \"Employe Test\",\n  \"prenom\": \"TP\",\n  \"role\": \"AGENT\",\n  \"agence\": {\n    \"id\": \"{{refAgenceId}}\"\n  }\n}",
+              "raw": "{\n  \"nom\": \"Employe Test\",\n  \"prenom\": \"TP\",\n  \"role\": \"AGENT\",\n  \"agenceId\": \"{{refAgenceId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2125,7 +2125,7 @@
             "url": "{{baseUrl}}/api/employes/{{employeId}}",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nom\": \"Employe Test\",\n  \"prenom\": \"Employe Modifié\",\n  \"role\": \"AGENT\",\n  \"agence\": {\n    \"id\": \"{{refAgenceId}}\"\n  }\n}",
+              "raw": "{\n  \"nom\": \"Employe Test\",\n  \"prenom\": \"Employe Modifié\",\n  \"role\": \"AGENT\",\n  \"agenceId\": \"{{refAgenceId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2241,7 +2241,7 @@
             "url": "{{baseUrl}}/api/employes/9223372036854775806",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nom\": \"Employe Test\",\n  \"prenom\": \"Employe Modifié\",\n  \"role\": \"AGENT\",\n  \"agence\": {\n    \"id\": \"{{refAgenceId}}\"\n  }\n}",
+              "raw": "{\n  \"nom\": \"Employe Test\",\n  \"prenom\": \"Employe Modifié\",\n  \"role\": \"AGENT\",\n  \"agenceId\": \"{{refAgenceId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2416,7 +2416,7 @@
             "url": "{{baseUrl}}/api/maintenances",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"dateDebut\": \"2026-11-02\",\n  \"dateFin\": \"2026-11-01\",\n  \"description\": \"Entretien TP\",\n  \"vehicule\": {\n    \"idVehicule\": \"{{refVehiculeId}}\"\n  }\n}",
+              "raw": "{\n  \"dateDebut\": \"2026-11-02\",\n  \"dateFin\": \"2026-11-01\",\n  \"description\": \"Entretien TP\",\n  \"vehiculeId\": \"{{refVehiculeId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2459,7 +2459,7 @@
             "url": "{{baseUrl}}/api/maintenances",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"dateDebut\": \"2026-11-02\",\n  \"dateFin\": \"2026-11-03\",\n  \"description\": \"Entretien TP\",\n  \"vehicule\": {\n    \"idVehicule\": \"{{refVehiculeId}}\"\n  },\n  \"id\": 5\n}",
+              "raw": "{\n  \"dateDebut\": \"2026-11-02\",\n  \"dateFin\": \"2026-11-03\",\n  \"description\": \"Entretien TP\",\n  \"id\": 5,\n  \"vehiculeId\": \"{{refVehiculeId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2502,7 +2502,7 @@
             "url": "{{baseUrl}}/api/maintenances",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"dateDebut\": \"2026-11-02\",\n  \"dateFin\": \"2026-11-03\",\n  \"description\": \"Entretien TP\",\n  \"vehicule\": {\n    \"idVehicule\": \"{{refVehiculeId}}\"\n  }\n}",
+              "raw": "{\n  \"dateDebut\": \"2026-11-02\",\n  \"dateFin\": \"2026-11-03\",\n  \"description\": \"Entretien TP\",\n  \"vehiculeId\": \"{{refVehiculeId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2574,7 +2574,7 @@
             "url": "{{baseUrl}}/api/maintenances/{{maintenanceId}}",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"dateDebut\": \"2026-11-02\",\n  \"dateFin\": \"2026-11-03\",\n  \"description\": \"Entretien Modifié\",\n  \"vehicule\": {\n    \"idVehicule\": \"{{refVehiculeId}}\"\n  }\n}",
+              "raw": "{\n  \"dateDebut\": \"2026-11-02\",\n  \"dateFin\": \"2026-11-03\",\n  \"description\": \"Entretien Modifié\",\n  \"vehiculeId\": \"{{refVehiculeId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2647,7 +2647,7 @@
             "url": "{{baseUrl}}/api/maintenances/{{maintenanceId}}",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"dateDebut\": \"2026-11-02\",\n  \"dateFin\": \"2026-11-01\",\n  \"description\": \"Entretien TP\",\n  \"vehicule\": {\n    \"idVehicule\": \"{{refVehiculeId}}\"\n  }\n}",
+              "raw": "{\n  \"dateDebut\": \"2026-11-02\",\n  \"dateFin\": \"2026-11-01\",\n  \"description\": \"Entretien TP\",\n  \"vehiculeId\": \"{{refVehiculeId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2691,7 +2691,7 @@
             "url": "{{baseUrl}}/api/maintenances/9223372036854775806",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"dateDebut\": \"2026-11-02\",\n  \"dateFin\": \"2026-11-03\",\n  \"description\": \"Entretien Modifié\",\n  \"vehicule\": {\n    \"idVehicule\": \"{{refVehiculeId}}\"\n  }\n}",
+              "raw": "{\n  \"dateDebut\": \"2026-11-02\",\n  \"dateFin\": \"2026-11-03\",\n  \"description\": \"Entretien Modifié\",\n  \"vehiculeId\": \"{{refVehiculeId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2866,7 +2866,7 @@
             "url": "{{baseUrl}}/api/reservations",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"dateDebut\": \"2026-11-10\",\n  \"dateFin\": \"2026-11-01\",\n  \"statut\": \"EN_ATTENTE\",\n  \"client\": {\n    \"id\": \"{{refClientId}}\"\n  },\n  \"vehicule\": {\n    \"idVehicule\": \"{{refVehiculeId}}\"\n  }\n}",
+              "raw": "{\n  \"dateDebut\": \"{{debutReservation}}\",\n  \"dateFin\": \"{{finInverseeReservation}}\",\n  \"statut\": \"EN_ATTENTE\",\n  \"clientId\": \"{{refClientId}}\",\n  \"vehiculeId\": \"{{refVehiculeId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2910,7 +2910,7 @@
             "url": "{{baseUrl}}/api/reservations",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"dateDebut\": \"2026-11-10\",\n  \"dateFin\": \"2026-11-12\",\n  \"statut\": \"EN_ATTENTE\",\n  \"client\": {\n    \"id\": \"{{refClientId}}\"\n  },\n  \"vehicule\": {\n    \"idVehicule\": \"{{refVehiculeId}}\"\n  },\n  \"id\": 5\n}",
+              "raw": "{\n  \"dateDebut\": \"{{debutReservation}}\",\n  \"dateFin\": \"{{finReservation}}\",\n  \"statut\": \"EN_ATTENTE\",\n  \"id\": 5,\n  \"clientId\": \"{{refClientId}}\",\n  \"vehiculeId\": \"{{refVehiculeId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2954,7 +2954,7 @@
             "url": "{{baseUrl}}/api/reservations",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"dateDebut\": \"2026-11-10\",\n  \"dateFin\": \"2026-11-12\",\n  \"statut\": \"EN_ATTENTE\",\n  \"client\": {\n    \"id\": \"{{refClientId}}\"\n  },\n  \"vehicule\": {\n    \"idVehicule\": \"{{refVehiculeId}}\"\n  }\n}",
+              "raw": "{\n  \"dateDebut\": \"{{debutReservation}}\",\n  \"dateFin\": \"{{finReservation}}\",\n  \"statut\": \"EN_ATTENTE\",\n  \"clientId\": \"{{refClientId}}\",\n  \"vehiculeId\": \"{{refVehiculeId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3027,7 +3027,7 @@
             "url": "{{baseUrl}}/api/reservations/{{reservationId}}",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"dateDebut\": \"2026-11-10\",\n  \"dateFin\": \"2026-11-12\",\n  \"statut\": \"CONFIRMEE\",\n  \"client\": {\n    \"id\": \"{{refClientId}}\"\n  },\n  \"vehicule\": {\n    \"idVehicule\": \"{{refVehiculeId}}\"\n  }\n}",
+              "raw": "{\n  \"dateDebut\": \"{{debutReservation}}\",\n  \"dateFin\": \"{{finReservation}}\",\n  \"statut\": \"CONFIRMEE\",\n  \"clientId\": \"{{refClientId}}\",\n  \"vehiculeId\": \"{{refVehiculeId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3101,7 +3101,7 @@
             "url": "{{baseUrl}}/api/reservations/{{reservationId}}",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"dateDebut\": \"2026-11-10\",\n  \"dateFin\": \"2026-11-01\",\n  \"statut\": \"EN_ATTENTE\",\n  \"client\": {\n    \"id\": \"{{refClientId}}\"\n  },\n  \"vehicule\": {\n    \"idVehicule\": \"{{refVehiculeId}}\"\n  }\n}",
+              "raw": "{\n  \"dateDebut\": \"{{debutReservation}}\",\n  \"dateFin\": \"{{finInverseeReservation}}\",\n  \"statut\": \"EN_ATTENTE\",\n  \"clientId\": \"{{refClientId}}\",\n  \"vehiculeId\": \"{{refVehiculeId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3146,7 +3146,7 @@
             "url": "{{baseUrl}}/api/reservations/9223372036854775806",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"dateDebut\": \"2026-11-10\",\n  \"dateFin\": \"2026-11-12\",\n  \"statut\": \"CONFIRMEE\",\n  \"client\": {\n    \"id\": \"{{refClientId}}\"\n  },\n  \"vehicule\": {\n    \"idVehicule\": \"{{refVehiculeId}}\"\n  }\n}",
+              "raw": "{\n  \"dateDebut\": \"{{debutReservation}}\",\n  \"dateFin\": \"{{finReservation}}\",\n  \"statut\": \"CONFIRMEE\",\n  \"clientId\": \"{{refClientId}}\",\n  \"vehiculeId\": \"{{refVehiculeId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3263,6 +3263,20 @@
               }
             }
           ]
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const dateApres = jours => new Date(Date.now() + jours * 86400000).toISOString().slice(0, 10);",
+              "pm.variables.set(\"debutReservation\", dateApres(2));",
+              "pm.variables.set(\"finReservation\", dateApres(4));",
+              "pm.variables.set(\"finInverseeReservation\", dateApres(1));"
+            ]
+          }
         }
       ]
     },

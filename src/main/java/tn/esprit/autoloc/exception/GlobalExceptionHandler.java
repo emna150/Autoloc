@@ -1,10 +1,12 @@
 package tn.esprit.autoloc.exception;
 
 import java.time.Instant;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -26,10 +28,25 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.BAD_REQUEST, "JSON illisible : vérifier la syntaxe, les dates et les énumérations");
     }
 
+    @ExceptionHandler(BindException.class)
+    public ResponseEntity<Map<String, Object>> handleValidation(BindException exception) {
+        Map<String, String> erreurs = new LinkedHashMap<>();
+        exception.getFieldErrors().forEach(erreur ->
+                erreurs.putIfAbsent(erreur.getField(), erreur.getDefaultMessage()));
+        Map<String, Object> reponse = new LinkedHashMap<>(corpsErreur(
+                HttpStatus.BAD_REQUEST, "Des données sont invalides"));
+        reponse.put("erreurs", erreurs);
+        return ResponseEntity.badRequest().body(reponse);
+    }
+
     private ResponseEntity<Map<String, Object>> error(HttpStatus status, String message) {
-        return ResponseEntity.status(status).body(Map.of(
+        return ResponseEntity.status(status).body(corpsErreur(status, message));
+    }
+
+    private Map<String, Object> corpsErreur(HttpStatus status, String message) {
+        return Map.of(
                 "statut", status.value(),
                 "message", message == null ? status.getReasonPhrase() : message,
-                "horodatage", Instant.now().toString()));
+                "horodatage", Instant.now().toString());
     }
 }

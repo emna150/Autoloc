@@ -1,21 +1,26 @@
 package tn.esprit.autoloc.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class AutoLocManager {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AutoLocManager.class);
 
     public void louerVehicule(String typeVehicule, String typeReservation,
                               int nombreJours, String clientEmail) {
         double prix = 0;
 
         if (typeReservation.equals("LongDuree")) {
-            prix = nombreJours * 120;
+            prix = nombreJours * 120.0;
         } else if (typeReservation.equals("Weekend")) {
-            prix = nombreJours * 180;
+            prix = nombreJours * 180.0;
         } else if (typeReservation.equals("Standard")) {
-            prix = nombreJours * 150;
+            prix = nombreJours * 150.0;
         }
 
-        System.out.println("Contrat créé");
-        System.out.println("Prix total : " + prix);
+        LOGGER.info("Contrat créé");
+        LOGGER.info("Prix total : {}", prix);
 
         envoyerEmail(clientEmail);
         enregistrerPaiement();
@@ -23,18 +28,14 @@ public class AutoLocManager {
     }
 
     private void envoyerEmail(String email) {
-        System.out.println("Email envoyé à " + email);
-    }
-
-    private void envoyerSMS(String numero) {
-        System.out.println("SMS envoyé à " + numero);
+        LOGGER.info("Email envoyé à {}", email);
     }
 
     private void enregistrerPaiement() {
-        System.out.println("Paiement enregistré");
+        LOGGER.info("Paiement enregistré");
     }
 
     private void sauvegarderContrat() {
-        System.out.println("Contrat sauvegardé");
+        LOGGER.info("Contrat sauvegardé");
     }
 }

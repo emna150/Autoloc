@@ -1,22 +1,30 @@
 package tn.esprit.autoloc.service.impl;
 
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.autoloc.domain.Contrat;
+import tn.esprit.autoloc.domain.Reservation;
 import tn.esprit.autoloc.exception.ResourceNotFoundException;
 import tn.esprit.autoloc.repository.IContratRepository;
+import tn.esprit.autoloc.repository.IReservationRepository;
 import tn.esprit.autoloc.service.IContratService;
-import lombok.RequiredArgsConstructor;
+import tn.esprit.autoloc.web.dto.ContratDTO;
+import tn.esprit.autoloc.web.mapper.ContratMapper;
+
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ContratServiceImpl implements IContratService {
 
-
     private final IContratRepository contratRepository;
+    private final ContratMapper contratMapper;
+    private final IReservationRepository reservationRepository;
 
     @Override
-    public Contrat create(Contrat contrat) {
+    public ContratDTO create(ContratDTO dto) {
+        Contrat contrat = contratMapper.toEntity(dto);
         if (contrat.getId() != null) {
             throw new IllegalArgumentException(
                     "Un nouveau contrat ne doit pas avoir d'identifiant");
@@ -25,39 +33,79 @@ public class ContratServiceImpl implements IContratService {
         if (contrat.getPaiements() != null) {
             contrat.getPaiements().forEach(paiement -> paiement.setContrat(contrat));
         }
-        return contratRepository.save(contrat);
+        Reservation reservation = chercherReservationDisponible(dto.getReservationId(), contrat);
+        Contrat sauvegarde = contratRepository.save(contrat);
+        rattacherReservation(sauvegarde, reservation);
+        return contratMapper.toDto(sauvegarde);
     }
 
     @Override
-    public Contrat findById(Long id) {
+    @Transactional(readOnly = true)
+    public ContratDTO findById(Long id) {
+        return contratMapper.toDto(charger(id));
+    }
+
+    private Contrat charger(Long id) {
         return contratRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Contrat", id));
     }
 
     @Override
-    public List<Contrat> findAll() {
-        return contratRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<ContratDTO> findAll() {
+        return contratRepository.findAll().stream().map(contratMapper::toDto).toList();
     }
 
     @Override
-    public Contrat update(Long id, Contrat contrat) {
-        Contrat existant = findById(id);
+    public ContratDTO update(Long id, ContratDTO dto) {
+        Contrat existant = charger(id);
+        Contrat contrat = contratMapper.toEntity(dto);
         verifierMontant(contrat);
+
+        if (dto.getReservationId() != null) {
+            rattacherReservation(existant, chercherReservationDisponible(dto.getReservationId(), existant));
+        }
 
         existant.setDateSignature(contrat.getDateSignature());
         existant.setMontantTotal(contrat.getMontantTotal());
         existant.setValide(contrat.isValide());
 
-        return contratRepository.save(existant);
+        return contratMapper.toDto(contratRepository.save(existant));
     }
 
     @Override
     public void deleteById(Long id) {
-        if (!contratRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Contrat", id);
+        Contrat contrat = charger(id);
+        rattacherReservation(contrat, null);
+        contratRepository.delete(contrat);
+    }
+
+    private Reservation chercherReservationDisponible(Long id, Contrat contrat) {
+        if (id == null) {
+            return null;
         }
-        contratRepository.deleteById(id);
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation", id));
+        if (reservation.getContrat() != null && reservation.getContrat() != contrat) {
+            throw new IllegalArgumentException("La réservation possède déjà un contrat");
+        }
+        return reservation;
+    }
+
+    private void rattacherReservation(Contrat contrat, Reservation reservation) {
+        Reservation ancienne = contrat.getReservation();
+        if (ancienne == reservation) {
+            return;
+        }
+        if (ancienne != null) {
+            ancienne.setContrat(null);
+            reservationRepository.saveAndFlush(ancienne);
+        }
+        if (reservation != null) {
+            reservation.setContrat(contrat);
+        }
+        contrat.setReservation(reservation);
     }
 
     private void verifierMontant(Contrat contrat) {
